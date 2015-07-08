@@ -5,8 +5,7 @@ public class CameraController : MonoBehaviour {
 
     // Public variables.
     public GameObject player;
-    public float rotateSpeedFP;
-    public float rotateSpeedTP;
+
 
     // Private variables.
     int controlMode;
@@ -22,8 +21,10 @@ public class CameraController : MonoBehaviour {
     float minCamHeight = 0;
     float x;
     float y;
-    public Vector3 FPCameraPos;
+    Vector3 FPCameraPos;
     LayerMask mask = ~(1 << 8);
+    float rotateSpeedFP = 75;
+    float rotateSpeedTP = 75;
 
 	// Method starts when object is generated.
 	void Start () {
@@ -36,7 +37,7 @@ public class CameraController : MonoBehaviour {
 	}
 	
     // Repeating method which is called continuously
-	void FixedUpdate () {
+	void Update () {
 
 
         // Switching between first and third person mode
@@ -50,33 +51,42 @@ public class CameraController : MonoBehaviour {
     // Repeating method which is called after physics calculation
     void LateUpdate()
     {
-        // Use first or third person mode.
-        if (controlMode == 0) FirstPerson();
-        else if (controlMode == 1) ThirdPerson();
-
-        if (controlMode == 1) transform.position = camMov;
+        // If in first person mode
         if (controlMode == 0)
         {
+            // Determine the camera rotation
+            FirstPerson();
+            // Set camera position to right spot.
             this.transform.localPosition = FPCameraPos;
         }
-        // Updating camera rotation
+        // If in third person mode
+        if (controlMode == 1)
+        {
+            // Calculate position and rotation of camera
+            ThirdPerson();
+
+            // Set camera position
+            transform.position = camMov;
+        }
+
+        // Set camera rotation
         transform.rotation = camRot;
     }
 
     // Control method for first person camera.
     void FirstPerson()
     {
-        // Getting the mouse input and camera angle
-        float RotationVertical = rotateSpeedFP * Input.GetAxisRaw("Mouse X") * Time.fixedDeltaTime;
-        float RotationHorizontal = rotateSpeedFP * Input.GetAxisRaw("Mouse Y") * Time.fixedDeltaTime;
+        // determining input from mouse axis
+        float mousex = Input.GetAxisRaw("Mouse X") * rotateSpeedFP * Time.fixedDeltaTime;
+        float mousey = Input.GetAxisRaw("Mouse Y") * rotateSpeedFP * Time.fixedDeltaTime;
 
-        // summing the rotation with the new rotation ordered by the mouse changes and transform the camera angles with this
-        rotation = rotation + new Vector3(-RotationHorizontal, RotationVertical, 0f)*Time.deltaTime;
+        // updating x and y with mouse movement. Limiting the y movement.
+        x = x + mousex;
+        y = Mathf.Clamp(y - mousey, -90, 90);
 
-        // limiting the movement of the camera
-        rotation.x = Mathf.Clamp(rotation.x, -90f, 90f);
+        // calculating rotation of camera
+        camRot = Quaternion.Euler(y, x, 0f);
 
-        camRot = Quaternion.Euler(rotation);
     }
 
     // Control method for third person camera.
@@ -102,6 +112,7 @@ public class CameraController : MonoBehaviour {
 
         // calculating position of camera and setting position of camera
         Vector3 probPosition = camRot * new Vector3(0f, 0f, -camDis) + player.transform.position;
+
         // Checking for collision from camera with objects with method
         CamCollide(probPosition);
 

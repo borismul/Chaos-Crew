@@ -3,11 +3,11 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour {
 
+    // Variables.
     public CameraController cameraController;
-    float speed = 300;
+    float speed = 500;
     float jumpSpeed = 10f;
     bool jumping;
-    float creativeUpDownSpeed = 250;
     float velY;
     int spacePresses;
     Vector3 prevPos;
@@ -15,26 +15,33 @@ public class PlayerController : MonoBehaviour {
     int chunkWidth;
     int chunkHeight;
 
-	// Use this for initialization
+	// Use this for initialization.
 	void Start () {
- 
+        // Initiating some variables.
+        prevPos = transform.position;
+        prevMove = Vector3.zero;
 	}
 
     void Update()
     {
-
+        // Checking whether the player wants to jump.
         Jump();
 
+
     }
-	// Method that is called continuously
+	// Method that is called continuously.
 	void FixedUpdate () {
-        rigidbody.velocity = Movement();
+
+        // Setting the velocity of the rigidbody.
+        GetComponent<Rigidbody>().velocity = Movement();
+
+        // determine the orientation of the player.
         transform.rotation = Rotation();
 	}
-    // Checking whether player touches the ground
+    // Checking whether player touches the ground.
     bool IsGrounded()
     {
-        // cast 5 rays around the player
+        // cast 5 rays around the player.
         RaycastHit hit;
         bool cond1 = Physics.Raycast(transform.position, Vector3.down, out hit, 1.01f);
         bool cond2 = Physics.Raycast(transform.position + new Vector3(0.4f, 0f, 0f), Vector3.down, out hit, 1.51f);
@@ -42,61 +49,77 @@ public class PlayerController : MonoBehaviour {
         bool cond4 = Physics.Raycast(transform.position + new Vector3(0, 0f, 0.4f), Vector3.down, out hit, 1.51f);
         bool cond5 = Physics.Raycast(transform.position + new Vector3(0, 0f, -0.4f), Vector3.down, out hit, 1.51f);
 
-        // see whether one of them hits the ground and if player is not jumping
-        if ((cond1 || cond2 || cond3 || cond4 || cond5) && rigidbody.velocity == Vector3.zero)
+        // see whether one of them hits the ground and if player is not jumping.
+        if ((cond1 || cond2 || cond3 || cond4 || cond5) && GetComponent<Rigidbody>().velocity == Vector3.zero)
         {
-            //transform.position = transform.position + new Vector3(0, 1.5f - (transform.position.y - hit.point.y), 0);
+            transform.position = transform.position + new Vector3(0, 1.5f - (transform.position.y - hit.point.y), 0);
         }
 
         return cond1 || cond2 || cond3 || cond4 || cond5;
     }
 
+    // Method for determining the players movements.
     Vector3 Movement()
     {
-
+        // If player is not on the ground or the player is jumping.
         if (!IsGrounded() || jumping)
         {
+            // determine its y velocity
             velY += Physics.gravity.y * Time.fixedDeltaTime;
         }
+        // If it is on the ground, is not jumping and its previous velocity was lower than 0, set y velocity to 0.
         else if (!jumping && prevMove.y < 0)
         {
             velY = 0;
         }
 
+        // Put this y velocity in a vector3.
         Vector3 movement = new Vector3(0f, velY, 0f);
+        
+        // Determine the inputs from the player.
+        float InHorz = Input.GetAxisRaw("Horizontal");
+        float InVert = Input.GetAxisRaw("Vertical");
 
-        float InHorz = Input.GetAxisRaw("Horizontal") * speed;
-        float InVert = Input.GetAxisRaw("Vertical") * speed;
+        // Put these inputs in the right direction so the player moves in the desired direction.
+        movement = Vector3.Normalize((transform.forward * InVert + transform.right * InHorz)) * Time.fixedDeltaTime * speed + movement;
 
-        movement = (transform.forward * InVert + transform.right * InHorz) * Time.fixedDeltaTime + movement;
+        // If the player is grounded and its movement is 0
+        if (IsGrounded() && movement == Vector3.zero)
+        {
+            // Set player back to the position it was, so it doesnt move at all.
+            transform.position = prevPos + prevMove * Time.fixedDeltaTime;
+        }
 
-        //if (IsGrounded() && movement == Vector3.zero)
-        //{
-        //    transform.position = prevPos + prevMove * Time.fixedDeltaTime;
-        //}
-
+        // save the the movement and position of this iteration.
         prevPos = transform.position;
         prevMove = movement;
 
+        // return the movement.
         return movement;
 
     }
 
+    // Method for determining the rotation of the player.
     Quaternion Rotation()
     {
 
+        // Rotate the player in the same direction as the camera along the y axis.
         Vector3 camEulerRotation = cameraController.transform.rotation.eulerAngles;
         Vector3 playerEulerRotation = new Vector3(0f, camEulerRotation.y, 0f);
 
+        // Return this rotation.
         return Quaternion.Euler(playerEulerRotation);
     }
 
     void Jump()
     {
-        
+        // set jumping false every iteriation.
         jumping = false;
-        if (Input.GetKey(KeyCode.Space) && IsGrounded() && rigidbody.velocity.y <= 0)
+
+        // determine whether the player pressed space and is on the ground and has no y velocity yet.
+        if (Input.GetKey(KeyCode.Space) && IsGrounded() && GetComponent<Rigidbody>().velocity.y <= 0)
         {
+            // if so set the y velocity to the jumpspeed and set jumping to true.
             velY = jumpSpeed;
             jumping = true;
         }
