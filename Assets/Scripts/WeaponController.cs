@@ -37,12 +37,15 @@ public class WeaponController : MonoBehaviour {
 
     void Shoot()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, 25f, groundLayer);
-        foreach (Collider hit in hits)
+        if (weapon == 1)
         {
-            float distance = Vector3.Distance(hit.transform.position, transform.position);
-            Vector3 direction = Vector3.Normalize(hit.transform.position-transform.position);
-            hit.GetComponent<Rigidbody>().velocity = direction * hitSpeed / (distance);
+            Collider[] hits = Physics.OverlapSphere(transform.position, 25f, groundLayer);
+            foreach (Collider hit in hits)
+            {
+                float distance = Vector3.Distance(hit.transform.position, transform.position);
+                Vector3 direction = Vector3.Normalize(hit.transform.position - transform.position);
+                hit.GetComponent<Rigidbody>().velocity = direction * hitSpeed / (distance);
+            }
         }
     }
 }
