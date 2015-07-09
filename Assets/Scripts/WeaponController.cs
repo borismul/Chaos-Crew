@@ -5,7 +5,9 @@ public class WeaponController : MonoBehaviour {
     int weapon;
     public GameObject[] weaponGameObjects;
     public float hitSpeed;
-    LayerMask groundLayer = ~(1 << 9) & ~(1 <<8);
+    public GameObject bullet1;
+    public GameObject instantiateBullet1;
+    public GameObject mainCamera;
 
 	// Start runs upon creation of player
 	void Start () {
@@ -39,13 +41,10 @@ public class WeaponController : MonoBehaviour {
     {
         if (weapon == 1)
         {
-            Collider[] hits = Physics.OverlapSphere(transform.position, 25f, groundLayer);
-            foreach (Collider hit in hits)
-            {
-                float distance = Vector3.Distance(hit.transform.position, transform.position);
-                Vector3 direction = Vector3.Normalize(hit.transform.position - transform.position);
-                hit.GetComponent<Rigidbody>().velocity = direction * hitSpeed / (distance);
-            }
+            GameObject bullet = (GameObject)Instantiate(bullet1, instantiateBullet1.transform.position, Quaternion.identity);
+            bullet.transform.parent = this.transform.parent;
+            bullet.GetComponent<BulletController>().SetDirection(Vector3.Normalize(mainCamera.transform.forward));
+
         }
     }
 }
