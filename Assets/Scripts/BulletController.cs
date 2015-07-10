@@ -5,9 +5,9 @@ public class BulletController : MonoBehaviour {
 
     Vector3 dir;
     Vector3 prevPos;
-    float speed = 20;
+    float speed = 40;
     public GameObject particles;
-    public GameObject player;
+    float destroySpeed = 20;
 	// Use this for initialization
 	void Start () {
         prevPos = transform.position;
@@ -24,7 +24,7 @@ public class BulletController : MonoBehaviour {
             if (hit.collider.GetComponent<Rigidbody>() != null)
             {
                 Rigidbody rigid = hit.collider.GetComponent<Rigidbody>();
-                rigid.velocity = dir * speed + rigid.velocity;
+                rigid.velocity = dir * destroySpeed + rigid.velocity;
             }
             Instantiate(particles, transform.position, Quaternion.identity);
             Destroy(this.gameObject);
