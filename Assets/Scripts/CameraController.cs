@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour {
 
 
     // Private variables.
-    int controlMode;
+    public int controlMode;
     Vector3 rotation;
     public Quaternion camRot = Quaternion.identity;
     Vector3 camMov;
@@ -28,6 +28,7 @@ public class CameraController : MonoBehaviour {
 
 	// Method starts when object is generated.
 	void Start () {
+        Cursor.visible = false;
         // Setting to first person at the start of the game.
         controlMode = 0;
         // Initializing camMov.
@@ -46,6 +47,7 @@ public class CameraController : MonoBehaviour {
         {
             controlMode = 0;
         }
+
 	}
 
     // Repeating method which is called after physics calculation
@@ -74,7 +76,7 @@ public class CameraController : MonoBehaviour {
     }
 
     // Control method for first person camera.
-    void FirstPerson()
+    public void FirstPerson()
     {
         // determining input from mouse axis
         float mousex = Input.GetAxisRaw("Mouse X") * rotateSpeedFP * Time.fixedDeltaTime;
@@ -90,7 +92,7 @@ public class CameraController : MonoBehaviour {
     }
 
     // Control method for third person camera.
-    void ThirdPerson()
+    public void ThirdPerson()
     {
 
         if (Input.GetKey(KeyCode.LeftControl))
@@ -111,13 +113,13 @@ public class CameraController : MonoBehaviour {
         camRot = Quaternion.Euler(y, x, 0f);
 
         // calculating position of camera and setting position of camera
-        Vector3 probPosition = camRot * new Vector3(0f, 0f, -camDis) + player.transform.position;
+        Vector3 probPosition = camRot * new Vector3(1f, 1f, -camDis) + player.transform.position;
 
         // Checking for collision from camera with objects with method
         CamCollide(probPosition);
 
         // calculating position of camera and setting position of camera
-        Vector3 position = camRot * new Vector3(0f, 0f, -camDis + distanceOffset) + player.transform.position;
+        Vector3 position = camRot * new Vector3(1f, 1f, -camDis + distanceOffset) + player.transform.position;
 
         camMov = position + new Vector3(0f, camOffset, 0f);
     }

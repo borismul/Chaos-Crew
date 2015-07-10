@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour {
 
     // Variables.
     public CameraController cameraController;
+    public GameObject mainCamera;
     float speed = 500;
     float jumpSpeed = 10f;
     bool jumping;
@@ -27,7 +28,8 @@ public class PlayerController : MonoBehaviour {
         // Checking whether the player wants to jump.
         Jump();
 
-
+        // determine the orientation of the player.
+        transform.rotation = Rotation();
     }
 	// Method that is called continuously.
 	void FixedUpdate () {
@@ -35,8 +37,7 @@ public class PlayerController : MonoBehaviour {
         // Setting the velocity of the rigidbody.
         GetComponent<Rigidbody>().velocity = Movement();
 
-        // determine the orientation of the player.
-        transform.rotation = Rotation();
+
 	}
     // Checking whether player touches the ground.
     bool IsGrounded()
