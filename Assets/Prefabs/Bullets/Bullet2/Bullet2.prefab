@@ -12,7 +12,7 @@ GameObject:
   - 23: {fileID: 2315438}
   - 114: {fileID: 11441142}
   m_Layer: 10
-  m_Name: Bullet
+  m_Name: Bullet2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -69,7 +69,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_Materials:
-  - {fileID: 2100000, guid: b96eb4e1b344f294bbeee8b9deb1754e, type: 2}
+  - {fileID: 2100000, guid: ba8771a3273bec644be456d33a36b5dd, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1
@@ -161,6 +161,10 @@ Prefab:
       propertyPath: player
       value: 
       objectReference: {fileID: 198602, guid: 91d54d99d37d22d4da3e6e82b7291ab5, type: 2}
+    - target: {fileID: 0}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ba8771a3273bec644be456d33a36b5dd, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 107136}

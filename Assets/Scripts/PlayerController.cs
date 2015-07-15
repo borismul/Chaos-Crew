@@ -6,6 +6,8 @@ public class PlayerController : MonoBehaviour {
     // Variables.
     public CameraController cameraController;
     public GameObject mainCamera;
+    public WeaponController weaponController;
+    public bool moving;
     float speed = 500;
     float jumpSpeed = 10f;
     bool jumping;
@@ -15,12 +17,16 @@ public class PlayerController : MonoBehaviour {
     Vector3 prevMove;
     int chunkWidth;
     int chunkHeight;
+    float InHorz;
+    float InVert;
 
 	// Use this for initialization.
 	void Start () {
         // Initiating some variables.
         prevPos = transform.position;
         prevMove = Vector3.zero;
+        InHorz = 0;
+        InVert = 0;
 	}
 
     void Update()
@@ -28,8 +34,22 @@ public class PlayerController : MonoBehaviour {
         // Checking whether the player wants to jump.
         Jump();
 
-        // determine the orientation of the player.
-        transform.rotation = Rotation();
+        // if fp mode determine the orientation of the player.
+        if (cameraController.controlMode == 0)
+        {
+            transform.localRotation = Rotation();
+
+        }
+        // else if tp mode determine orientation of player when it is moving.
+        if (cameraController.controlMode == 1 && (InHorz != 0 || InVert != 0) || weaponController.shooting == true)
+        {
+            Vector3 movement = Vector3.Normalize(Vector3.Scale(cameraController.transform.forward, new Vector3(1, 0, 1)));
+            transform.rotation = Quaternion.LookRotation(movement);
+            
+        }
+    
+        
+        
     }
 	// Method that is called continuously.
 	void FixedUpdate () {
@@ -78,11 +98,14 @@ public class PlayerController : MonoBehaviour {
         Vector3 movement = new Vector3(0f, velY, 0f);
         
         // Determine the inputs from the player.
-        float InHorz = Input.GetAxisRaw("Horizontal");
-        float InVert = Input.GetAxisRaw("Vertical");
+        InHorz = Input.GetAxisRaw("Horizontal");
+        InVert = Input.GetAxisRaw("Vertical");
+
+        if (InHorz != 0 || InVert != 0) moving = true;
+        else moving = false;
 
         // Put these inputs in the right direction so the player moves in the desired direction.
-        movement = Vector3.Normalize((transform.forward * InVert + transform.right * InHorz)) * Time.fixedDeltaTime * speed + movement;
+        movement = Vector3.Normalize(Vector3.Scale(cameraController.transform.forward * InVert + cameraController.transform.right * InHorz, new Vector3(1, 0, 1))) *Time.fixedDeltaTime * speed + movement;
 
         // If the player is grounded and its movement is 0
         if (IsGrounded() && movement == Vector3.zero)

@@ -5,7 +5,7 @@ public class CameraController : MonoBehaviour {
 
     // Public variables.
     public GameObject player;
-
+    public GameObject[] playerObjects;
 
     // Private variables.
     public int controlMode;
@@ -34,7 +34,7 @@ public class CameraController : MonoBehaviour {
         // Initializing camMov.
         camRot = transform.rotation;
         // Initializing FPCameraPos
-        FPCameraPos = transform.localPosition;
+        FPCameraPos = transform.localPosition - player.transform.localPosition;
 	}
 	
     // Repeating method which is called continuously
@@ -42,10 +42,22 @@ public class CameraController : MonoBehaviour {
 
 
         // Switching between first and third person mode
-        if (Input.GetKeyDown(KeyCode.V) && controlMode == 0) controlMode = 1;
+        if (Input.GetKeyDown(KeyCode.V) && controlMode == 0)
+        {
+            foreach (GameObject playerPart in playerObjects)
+            {
+                playerPart.SetActive(true);
+            }
+            controlMode = 1;
+        }
         else if (Input.GetKeyDown(KeyCode.V) && controlMode == 1)
         {
+            foreach (GameObject playerPart in playerObjects)
+            {
+                playerPart.SetActive(false);
+            }
             controlMode = 0;
+            // Set camera position to right spot.
         }
 
 	}
@@ -58,8 +70,10 @@ public class CameraController : MonoBehaviour {
         {
             // Determine the camera rotation
             FirstPerson();
-            // Set camera position to right spot.
-            this.transform.localPosition = FPCameraPos;
+
+            transform.localPosition = FPCameraPos + player.transform.localPosition;
+
+
         }
         // If in third person mode
         if (controlMode == 1)
@@ -70,6 +84,7 @@ public class CameraController : MonoBehaviour {
             // Set camera position
             transform.position = camMov;
         }
+
 
         // Set camera rotation
         transform.rotation = camRot;
@@ -124,7 +139,7 @@ public class CameraController : MonoBehaviour {
         camMov = position + new Vector3(0f, camOffset, 0f);
     }
 
-    // method for determining if the camera got through an object
+    // Method for determining if there is an object between the player and the camera
     private void CamCollide(Vector3 Position)
     {
         // create a vector from the player to the camera
