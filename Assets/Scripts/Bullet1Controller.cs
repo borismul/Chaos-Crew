@@ -30,7 +30,7 @@ public class Bullet1Controller : MonoBehaviour {
 
     void Update()
     {
-
+        
         if (Time.realtimeSinceStartup - lifeTime > 3f) Destroy(this.gameObject);
     }
 }
