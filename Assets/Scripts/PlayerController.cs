@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviour {
     {
         // cast 5 rays around the player.
         RaycastHit hit;
-        bool cond1 = Physics.Raycast(transform.position, Vector3.down, out hit, 1.01f);
+        bool cond1 = Physics.Raycast(transform.position, Vector3.down, out hit, 1.51f);
         bool cond2 = Physics.Raycast(transform.position + new Vector3(0.4f, 0f, 0f), Vector3.down, out hit, 1.51f);
         bool cond3 = Physics.Raycast(transform.position + new Vector3(-0.4f, 0f, 0f), Vector3.down, out hit, 1.51f);
         bool cond4 = Physics.Raycast(transform.position + new Vector3(0, 0f, 0.4f), Vector3.down, out hit, 1.51f);
