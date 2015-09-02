@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
-public class WeaponController : MonoBehaviour {
-    int weapon;
+public class WeaponController : NetworkBehaviour {
+    [SyncVar] int weapon;
     public GameObject[] weaponGameObjects;
     public float hitSpeed;
     public GameObject bullet1;
@@ -18,14 +19,18 @@ public class WeaponController : MonoBehaviour {
 	// Start runs upon creation of player
 	void Start () {
         // start with weapon 1
+        if (!isLocalPlayer) return;
         weapon = 1;
 	}
 	
 	// Update is called once per frame
 	void Update () {
         CheckWeapon();
+        if (!isLocalPlayer) return;
 
-        if (cameraController.controlMode == 0) if (Input.GetKeyDown(KeyCode.Mouse0)) Shoot();
+
+        if (cameraController.controlMode == 0 && Input.GetKeyDown(KeyCode.Mouse0)) 
+            Shoot();
 
         if (cameraController.controlMode == 1)
         {
@@ -44,12 +49,15 @@ public class WeaponController : MonoBehaviour {
 
     // Method checks weather player wants to switch weapons.
     void CheckWeapon(){
-        // Check whether player want to change weapons
-        if (Input.GetKeyDown(KeyCode.Alpha0)) weapon = 0;
-        if (Input.GetKeyDown(KeyCode.Alpha1)) weapon = 1;
-        if (Input.GetKeyDown(KeyCode.Alpha2)) weapon = 2;
+        if (isLocalPlayer)
+        {
+            // Check whether player want to change weapons
+            if (Input.GetKeyDown(KeyCode.Alpha0)) weapon = 0;
+            if (Input.GetKeyDown(KeyCode.Alpha1)) weapon = 1;
+            if (Input.GetKeyDown(KeyCode.Alpha2)) weapon = 2;
+            CmdSetWeapon(weapon);
 
-
+        }
         // Set weapon that is desired active and deactivate all others.
         for (int i = 0; i < weaponGameObjects.Length; i++)
         {
@@ -57,6 +65,7 @@ public class WeaponController : MonoBehaviour {
             else weaponGameObjects[i].SetActive(false);
 
         }
+       
     }
 
     // Method that does something when player shoots
@@ -67,8 +76,6 @@ public class WeaponController : MonoBehaviour {
             GameObject bullet = (GameObject)Instantiate(bullet1, instantiateBullet1.transform.position, mainCamera.transform.rotation);
             bullet.transform.parent = this.transform.parent;
             bullet.GetComponent<Bullet1Controller>().SetDirection(Vector3.Normalize(mainCamera.transform.forward));
-
-
         }
 
         // If weapon 2 create a bullet and give it its velocity.
@@ -80,5 +87,10 @@ public class WeaponController : MonoBehaviour {
         }
 
         
+    }
+    [Command]
+    void CmdSetWeapon(int weapon)
+    {
+        this.weapon = weapon;
     }
 }

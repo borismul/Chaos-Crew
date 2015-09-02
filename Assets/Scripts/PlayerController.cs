@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : NetworkBehaviour {
 
     // Variables.
     public CameraController cameraController;
@@ -22,6 +23,7 @@ public class PlayerController : MonoBehaviour {
 
 	// Use this for initialization.
 	void Start () {
+        if (!isLocalPlayer) return;
         // Initiating some variables.
         prevPos = transform.position;
         prevMove = Vector3.zero;
@@ -31,31 +33,30 @@ public class PlayerController : MonoBehaviour {
 
     void Update()
     {
+        if (!isLocalPlayer) return;
         // Checking whether the player wants to jump.
         Jump();
 
         // if fp mode determine the orientation of the player.
         if (cameraController.controlMode == 0)
         {
-            transform.localRotation = Rotation();
+            transform.rotation = Rotation();
 
         }
         // else if tp mode determine orientation of player when it is moving.
         if (cameraController.controlMode == 1 && (InHorz != 0 || InVert != 0) || weaponController.shooting == true)
         {
-            Vector3 movement = Vector3.Normalize(Vector3.Scale(cameraController.transform.forward, new Vector3(1, 0, 1)));
+            Vector3 movement = Vector3.Normalize(Vector3.Scale(cameraController.thisCamera.transform.forward, new Vector3(1, 0, 1)));
             transform.rotation = Quaternion.LookRotation(movement);
-            
         }
-    
-        
-        
     }
 	// Method that is called continuously.
 	void FixedUpdate () {
+        if (!isLocalPlayer) return;
 
         // Setting the velocity of the rigidbody.
-        GetComponent<Rigidbody>().velocity = Movement();
+        GetComponent<Rigidbody>().velocity = CmdMovement();
+        GetComponent<Rigidbody>().angularVelocity = new Vector3(0,0,0);
 
 
 	}
@@ -79,8 +80,9 @@ public class PlayerController : MonoBehaviour {
         return cond1 || cond2 || cond3 || cond4 || cond5;
     }
 
+    [Command]
     // Method for determining the players movements.
-    Vector3 Movement()
+    Vector3 CmdMovement()
     {
         // If player is not on the ground or the player is jumping.
         if (!IsGrounded() || jumping)
@@ -105,7 +107,7 @@ public class PlayerController : MonoBehaviour {
         else moving = false;
 
         // Put these inputs in the right direction so the player moves in the desired direction.
-        movement = Vector3.Normalize(Vector3.Scale(cameraController.transform.forward * InVert + cameraController.transform.right * InHorz, new Vector3(1, 0, 1))) *Time.fixedDeltaTime * speed + movement;
+        movement = Vector3.Normalize(Vector3.Scale(cameraController.thisCamera.transform.forward * InVert + cameraController.thisCamera.transform.right * InHorz, new Vector3(1, 0, 1))) * Time.fixedDeltaTime * speed + movement;
 
         // If the player is grounded and its movement is 0
         if (IsGrounded() && movement == Vector3.zero)
@@ -128,7 +130,7 @@ public class PlayerController : MonoBehaviour {
     {
 
         // Rotate the player in the same direction as the camera along the y axis.
-        Vector3 camEulerRotation = cameraController.transform.rotation.eulerAngles;
+        Vector3 camEulerRotation = cameraController.thisCamera.transform.rotation.eulerAngles;
         Vector3 playerEulerRotation = new Vector3(0f, camEulerRotation.y, 0f);
 
         // Return this rotation.
@@ -149,4 +151,5 @@ public class PlayerController : MonoBehaviour {
         }
 
     }
+ 
 }

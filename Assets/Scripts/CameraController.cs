@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Networking;
 
-public class CameraController : MonoBehaviour {
+public class CameraController : NetworkBehaviour {
 
     // Public variables.
     public GameObject player;
     public GameObject[] playerObjects;
+    public GameObject thisCamera;
 
     // Private variables.
     public int controlMode;
@@ -28,26 +30,32 @@ public class CameraController : MonoBehaviour {
 
 	// Method starts when object is generated.
 	void Start () {
+
+        if (!isLocalPlayer)
+        {
+            SetVisible();
+            return;
+        }
+
+        thisCamera.SetActive(true);
+
         Cursor.visible = false;
         // Setting to first person at the start of the game.
         controlMode = 0;
         // Initializing camMov.
-        camRot = transform.rotation;
+        camRot = thisCamera.transform.rotation;
         // Initializing FPCameraPos
-        FPCameraPos = transform.localPosition - player.transform.localPosition;
+        FPCameraPos = thisCamera.transform.localPosition;
 	}
 	
     // Repeating method which is called continuously
 	void Update () {
 
-
+        if (!isLocalPlayer) return;
         // Switching between first and third person mode
         if (Input.GetKeyDown(KeyCode.V) && controlMode == 0)
         {
-            foreach (GameObject playerPart in playerObjects)
-            {
-                playerPart.SetActive(true);
-            }
+            SetVisible();
             controlMode = 1;
         }
         else if (Input.GetKeyDown(KeyCode.V) && controlMode == 1)
@@ -71,7 +79,7 @@ public class CameraController : MonoBehaviour {
             // Determine the camera rotation
             FirstPerson();
 
-            transform.localPosition = FPCameraPos + player.transform.localPosition;
+            thisCamera.transform.localPosition = FPCameraPos;
 
 
         }
@@ -82,12 +90,12 @@ public class CameraController : MonoBehaviour {
             ThirdPerson();
 
             // Set camera position
-            transform.position = camMov;
+            thisCamera.transform.position = camMov;
         }
 
 
         // Set camera rotation
-        transform.rotation = camRot;
+        thisCamera.transform.rotation = camRot;
     }
 
     // Control method for first person camera.
@@ -160,5 +168,12 @@ public class CameraController : MonoBehaviour {
 
     }
 
+    void SetVisible()
+    {
+        foreach (GameObject playerPart in playerObjects)
+        {
+            playerPart.SetActive(true);
+        }
+    }
 
 }
